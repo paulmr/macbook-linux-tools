@@ -1,0 +1,71 @@
+#!/usr/bin/bash
+#
+# puts my macbook into 'clamshell' mode
+
+# TODO: check that we actually have the other things available before
+# entering clam shell mode!
+
+TOUCHPAD_ID=$(xinput list --id-only bcm5974)
+
+function display() {
+    case $1 in
+        reset)
+            echo "Resetting displays"
+            xrandr --auto
+            ;;
+        off)
+            echo "Turning off display"
+            xrandr --output eDP1 --off
+            ;;
+    esac
+}
+
+function touchpad() {
+    case $1 in
+        on)
+            echo "Turning touchpad on"
+            xinput --enable $TOUCHPAD_ID
+            ;;
+        off)
+            echo "Turning touch pad off"
+            xinput --disable $TOUCHPAD_ID
+            ;;
+    esac
+}
+
+function keyboard() {
+    case $1 in
+        reset)
+            echo "Resetting keyboard"
+            keyb >/dev/null
+            ;;
+    esac
+}
+
+function enterclam() {
+    display reset
+    display off
+    touchpad off
+    keyboard reset
+}
+
+function exitclam() {
+    # turn off the built-in display
+    display reset
+    keyboard
+    touchpad on
+}
+
+CMD=${1:-on}
+
+case $CMD in
+    cmd)
+        echo "Exiting commnd $2"
+        "$2" "$3"
+        ;;
+    on) enterclam
+        ;;
+    off)
+        exitclam
+        ;;
+esac
